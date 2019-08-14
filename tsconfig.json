@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "react",
+    "noEmit": true,
+    "target": "esnext",
+    "allowJs": true,
+    "strict": true,
+    "rootDir": "src",
+    "sourceMap": true,
+    "module": "commonjs",
+    "declaration": true,
+    "skipLibCheck": true,
+    "importHelpers": true,
+    "lib": ["esnext", "dom"],
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "forceConsistentCasingInFileNames": true,
+
+  },
+  "exclude": ["ios", "android", "scripts", "node_modules", "src/assets/dummy_data"]
+}

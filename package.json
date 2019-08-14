@@ -1,0 +1,70 @@
+{
+  "name": "components",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "bundle-android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
+    "postinstall": "npx jetify",
+    "ios": "react-native run-ios",
+    "lint": "tslint --project tsconfig.json --config tslint.json",
+    "pods:reinstall": "cd ios && rm Podfile.lock && pod deintegrate && pod install",
+    "prettier": "prettier  --write 'src/**/*.{ts,tsx}'",
+    "reinstall": "rm -rf node_modules && rm -rf yarn.lock && yarn",
+    "scripts:build-android": "./scripts/releaseAndroid.sh",
+    "scripts:clean": "./scripts/clean.sh",
+    "start": "react-native start",
+    "test": "jest"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn sort-package-json && lint-staged"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.{ts,tsx}": [
+      "yarn prettier",
+      "yarn lint",
+      "git add"
+    ]
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "trailingComma": "all"
+  },
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "react": "16.8.6",
+    "react-native": "0.60.4",
+    "styled-components": "^4.3.2",
+    "validate.js": "^0.13.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/runtime": "^7.5.5",
+    "@react-native-community/eslint-config": "^0.0.5",
+    "@types/jest": "^24.0.16",
+    "@types/lodash": "^4.14.136",
+    "@types/react": "^16.8.24",
+    "@types/react-native": "^0.60.2",
+    "@types/react-test-renderer": "^16.8.3",
+    "babel-jest": "^24.8.0",
+    "eslint": "^6.1.0",
+    "husky": "3.0.1",
+    "jest": "^24.8.0",
+    "lint-staged": "9.2.1",
+    "metro-react-native-babel-preset": "^0.55.0",
+    "prettier": "1.18.2",
+    "react-test-renderer": "16.8.6",
+    "sort-package-json": "1.22.1",
+    "tslint": "5.18.0",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-eslint-rules": "5.4.0",
+    "tslint-react": "4.0.0",
+    "typescript": "^3.5.3"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
