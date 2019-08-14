@@ -8,8 +8,14 @@ import {
   Animated, 
   StyleSheet,
   ScrollView,
-  View
+  KeyboardEvent,
 } from 'react-native';
+
+type ScrollUpFunc = () => void;
+type ScrollDownFunc = () => void;
+type KeyboardWillShowFunc = (event: KeyboardEvent) => void;
+type KeyboardWillHideFunc = (event: KeyboardEvent) => void;
+type ContainerHeightFunc = (x: number, y: number) => void;
 
 const { height: windowHeight } = Dimensions.get('window');
 const { State: TextInputState } = TextInput;
@@ -21,30 +27,27 @@ export const KeyboardAvoid = ({ children }: any) => {
   const [isKeyboardShow, setIsKeyboardShow] = useState(false);
   const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
 
-  let keyboardDidShowSub: EmitterSubscription;
-  let keyboardDidHideSub: EmitterSubscription;
+  let keyboardWillShowSub: EmitterSubscription;
+  let keyboardWillHideSub: EmitterSubscription;
 
   useEffect(() => {
-    keyboardDidShowSub = Keyboard.addListener('keyboardDidShow', handleKeyboardDidShow);
-    keyboardDidHideSub = Keyboard.addListener('keyboardDidHide', handleKeyboardDidHide);
+    keyboardWillShowSub = Keyboard.addListener('keyboardWillShow', handleKeyboardWillShow);
+    keyboardWillHideSub = Keyboard.addListener('keyboardWillHide', handleKeyboardWillHide);
     return () => {
-      keyboardDidShowSub.remove();
-      keyboardDidHideSub.remove();
+      keyboardWillShowSub.remove();
+      keyboardWillHideSub.remove();
     };
   }, []);
 
   useEffect(() => {
-      
-
     if (isKeyboardShow) {
-      // scrollViewRef.current.getNode().scrollTo({x: 0, y: 500});
-      scrollDown();
+      _scrollDown();
     } else {
-      scrollUp();
+      _scrollUp();
     }
   }, [isKeyboardShow]);
 
-  const scrollDown = () => {
+  const _scrollDown: ScrollDownFunc = () => {
     const currentlyFocusedField = TextInputState.currentlyFocusedField();
     if (currentlyFocusedField) {
       UIManager.measure(currentlyFocusedField, (originX, originY, width, height, pageX, pageY) => {
@@ -54,7 +57,8 @@ export const KeyboardAvoid = ({ children }: any) => {
         if (gap >= 0) {
           return;
         }
-        const delta = fullHeight === 0 ? 50 : fullHeight;
+        const delta = (windowHeight - 200) < pageY ? (fullHeight - windowHeight) / 2 : 0;
+        scrollViewRef.current.getNode().scrollTo({x: 0, y: pageY / 3 });
         Animated.timing(
           shift,
           {
@@ -67,7 +71,7 @@ export const KeyboardAvoid = ({ children }: any) => {
     }
   };
 
-  const scrollUp = () => {
+  const _scrollUp: ScrollUpFunc = () => {
     const currentlyFocusedField = TextInputState.currentlyFocusedField();
     if (!currentlyFocusedField ) {
       Animated.timing(
@@ -81,7 +85,7 @@ export const KeyboardAvoid = ({ children }: any) => {
     }
   };
 
-  const handleKeyboardDidShow = (event: any) => {
+  const handleKeyboardWillShow: KeyboardWillShowFunc = (event: any) => {
     if (keyboardHeight === 0) {
       const height = event.endCoordinates.height;
       setKeyboardHeight(height);
@@ -89,29 +93,23 @@ export const KeyboardAvoid = ({ children }: any) => {
     setIsKeyboardShow(true);
   };
 
-  const handleKeyboardDidHide = () => {
+  const handleKeyboardWillHide: KeyboardWillHideFunc = () => {
     setIsKeyboardShow(false);
-    
   };
 
-  const handleScreenHeight = ({ nativeEvent }) => {
-    
-    // console.log(nativeEvent.contentOffset.y)
-    setFullHeight(nativeEvent.contentOffset.y);
+  const handleContainerHeight: ContainerHeightFunc = (x, y) => {
+    setFullHeight(y);
   };
 
   return (
     <Animated.ScrollView
       ref={scrollViewRef}
       // keyboardDismissMode={true}
-      // onContentSizeChange={(x,y) => setFullHeight(y)}
-      // scrollTo=
-      onScroll={handleScreenHeight}
+      onContentSizeChange={handleContainerHeight}
       contentContainerStyle={styles.content}
       style={[styles.container, { transform: [{translateY: shift}] }]} 
     >
       {children}
-      {/* <TextInput/> */}
     </Animated.ScrollView>
     
   );
