@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, ViewStyle, TextInputProps, Keyboard } from 'react-native';
+import React, { useEffect, useRef, useContext } from 'react';
+import { View, ViewStyle, TextInputProps } from 'react-native';
+import { FormKeyboardContext } from '../../contexts/FormKeyboardContext';
 
 interface IFormProps {
   children: React.ReactElement[];
@@ -14,30 +15,31 @@ type CloneChildFunc = (child: React.ReactElement , index: number, enchance: bool
 type ModifyChildrensFunc = (child: React.ReactElement, i: number) => React.ReactElement;
 
 export const Form: React.FC<IFormProps> = ({ children, style }) => {
-  const [activeInput, setActicveInput] = useState<number>(0);
+  const [state, setState] = useContext(FormKeyboardContext);
   const inputRef = useRef();
 
   useEffect(() => {
-    extendedChildrens[activeInput].ref.current.focus();
-  }, [activeInput]);
+    extendedChildrens[state.activeInput].ref.current.focus();
+  }, [state.activeInput]);
 
   const _handleActiveInput: ActiveInptutFunc = () => {
-    if (activeInput !== children.length - 1 && children.length) {
-      setActicveInput(activeInput + 1);
+    if (state.activeInput !== children.length - 1 && children.length) {
+      setState({...state, activeInput: state.activeInput + 1 });
     }
   };
 
   const _handleOnFocus: OnFocusFunc = (index) => {
-    if (activeInput !== index) {
-      Keyboard.dismiss();
-      setActicveInput(index);
+    if (state.activeInput !== index) {
+      setState({...state, activeInput: index });
     }
   };
 
   const _cloneChildren: CloneChildFunc = (child, index, enchance) => {
+    const isLast = index === children.length - 1;
     const extendedProps: IExtendedProps = {
       onSubmitEditing: _handleActiveInput,
       onFocus: () => _handleOnFocus(index),
+      blurOnSubmit: isLast,
       ref: enchance ? inputRef : null,
       ...child.props,
     };
@@ -45,9 +47,8 @@ export const Form: React.FC<IFormProps> = ({ children, style }) => {
   };
   
   const modifyChildrens: ModifyChildrensFunc = (child, i) => {
-    
-    if (i === activeInput) {
-      return _cloneChildren(child, activeInput, true);
+    if (i === state.activeInput) {
+      return _cloneChildren(child, state.activeInput, true);
     } else {
       return _cloneChildren(child, i, false);
     }
@@ -60,4 +61,10 @@ export const Form: React.FC<IFormProps> = ({ children, style }) => {
       {extendedChildrens}
     </View>
   );
+};
+
+Form.defaultProps = {
+  style: {
+    width: '100%',
+  }
 };
