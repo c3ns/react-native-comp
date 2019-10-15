@@ -13,9 +13,10 @@ const constraints = {
       maximum: 50,
       message: '^incorectName',
     },
-  }
+  },
 };
 
 export const config = {
-  constraints
+  constraints,
+  validateOnChange: false,
 };

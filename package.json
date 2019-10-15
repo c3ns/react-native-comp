@@ -36,8 +36,8 @@
   "dependencies": {
     "lodash": "^4.17.15",
     "react": "16.8.6",
-    "react-native": "0.60.4",
-    "styled-components": "^4.3.2",
+    "react-native": "0.61.2",
+    "styled-components": "^4.4.0",
     "validate.js": "^0.13.1"
   },
   "devDependencies": {

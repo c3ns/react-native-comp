@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { useForm, IForms } from './hooks';
 import { Form } from './components/Form';
@@ -11,27 +11,28 @@ const App = () => {
   const { values, onChange, onSubmit, errors } = useForm(config);
   const formSelector = useCallback((forms: IForms) => console.log(forms), []);
   const handleSubmit = useCallback(() => onSubmit(formSelector), [values]);
-
+  console.log(errors);
   return (
     <View style={{ flex: 1 }}>
       <FormKeyboardProvider>
         <KeyboardAvoid style={styles.cont}>
+          {/* <View style={{ height: 300 }}/> */}
           <Form>
+            <Input onChangeText={text => onChange('name', text)} style={styles.input} />
+            <TextInput onChangeText={text => onChange('email', text)} style={styles.input} />
+            {/* <TextInput onChangeText={(text) => onChange('name', text)} style={styles.input} />
+            <Input onChangeText={(text) => onChange('name', text)} style={styles.input} />
             <Input onChangeText={(text) => onChange('name', text)} style={styles.input} />
             <TextInput onChangeText={(text) => onChange('email', text)} style={styles.input} />
             <TextInput onChangeText={(text) => onChange('name', text)} style={styles.input} />
-            <Input onChangeText={(text) => onChange('name', text)} style={styles.input} />
-            <Input onChangeText={(text) => onChange('name', text)} style={styles.input} />
-            <TextInput onChangeText={(text) => onChange('email', text)} style={styles.input} />
-            <TextInput onChangeText={(text) => onChange('name', text)} style={styles.input} />
-            <Input onChangeText={(text) => onChange('name', text)} style={styles.input} />
+            <Input onChangeText={(text) => onChange('name', text)} style={styles.input} /> */}
           </Form>
           <TouchableOpacity onPress={handleSubmit}>
             <Text>Confirm</Text>
           </TouchableOpacity>
         </KeyboardAvoid>
       </FormKeyboardProvider>
-    </View> 
+    </View>
   );
 };
 
@@ -47,8 +48,7 @@ const styles = StyleSheet.create({
   },
   cont: {
     justifyContent: 'space-between',
-    width: '100%',
-    height,
     backgroundColor: 'white',
-  }
+    borderWidth: 5,
+  },
 });
