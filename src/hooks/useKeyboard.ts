@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { Keyboard, EmitterSubscription, KeyboardEvent } from 'react-native';
 
@@ -24,14 +23,14 @@ export const useKeyboard = () => {
   const keyboardWillShow: KeyboardWillShowFunc = e => {
     setKeyboard({
       isKeyboardShow: true,
-      keyboardHeight: e.endCoordinates.height
+      keyboardHeight: e.endCoordinates.height,
     });
   };
 
   const keyboardWillHide: KeyboardWillHideFunc = e => {
     setKeyboard({
       isKeyboardShow: false,
-      keyboardHeight: e.endCoordinates.height
+      keyboardHeight: e.endCoordinates.height,
     });
   };
 

@@ -11,7 +11,11 @@ interface IExtendedProps extends TextInputProps {}
 
 type ActiveInptutFunc = () => void;
 type OnFocusFunc = (index: number) => void;
-type CloneChildFunc = (child: React.ReactElement , index: number, enchance: boolean) => React.ReactElement;
+type CloneChildFunc = (
+  child: React.ReactElement,
+  index: number,
+  enchance: boolean,
+) => React.ReactElement;
 type ModifyChildrensFunc = (child: React.ReactElement, i: number) => React.ReactElement;
 
 export const Form: React.FC<IFormProps> = ({ children, style }) => {
@@ -24,13 +28,13 @@ export const Form: React.FC<IFormProps> = ({ children, style }) => {
 
   const _handleActiveInput: ActiveInptutFunc = () => {
     if (state.activeInput !== children.length - 1 && children.length) {
-      setState({...state, activeInput: state.activeInput + 1 });
+      setState({ ...state, activeInput: state.activeInput + 1 });
     }
   };
 
-  const _handleOnFocus: OnFocusFunc = (index) => {
+  const _handleOnFocus: OnFocusFunc = index => {
     if (state.activeInput !== index) {
-      setState({...state, activeInput: index });
+      setState({ ...state, activeInput: index });
     }
   };
 
@@ -45,7 +49,7 @@ export const Form: React.FC<IFormProps> = ({ children, style }) => {
     };
     return React.cloneElement(child, extendedProps);
   };
-  
+
   const modifyChildrens: ModifyChildrensFunc = (child, i) => {
     if (i === state.activeInput) {
       return _cloneChildren(child, state.activeInput, true);
@@ -56,15 +60,11 @@ export const Form: React.FC<IFormProps> = ({ children, style }) => {
 
   const extendedChildrens: any = React.Children.map(children, modifyChildrens);
 
-  return (
-    <View style={style}>
-      {extendedChildrens}
-    </View>
-  );
+  return <View style={style}>{extendedChildrens}</View>;
 };
 
 Form.defaultProps = {
   style: {
     width: '100%',
-  }
+  },
 };

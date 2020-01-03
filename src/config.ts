@@ -18,5 +18,5 @@ const constraints = {
 
 export const config = {
   constraints,
-  validateOnChange: false,
+  validateOnChange: true,
 };

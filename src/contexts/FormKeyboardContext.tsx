@@ -13,7 +13,7 @@ const initState = {
 
 export const FormKeyboardProvider = ({ children }: any) => {
   const keyboard = useKeyboard();
-  const [state, setState] = useState<IContextProps>({...initState, ...keyboard });
+  const [state, setState] = useState<IContextProps>({ ...initState, ...keyboard });
 
   useEffect(() => {
     setState({ ...state, ...keyboard });
