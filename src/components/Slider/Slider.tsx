@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useValues } from 'react-native-redash';
 import Thumb from './Thumb';
 import ThumbTrack from './ThumbTrack';
 
-const { Value, useCode, block, cond, and, greaterOrEq, lessThan, neq, call, set } = Animated;
+const { useCode, cond, neq, call, set, interpolate, floor } = Animated;
 
 interface IStepValues {
   min: number;
@@ -18,17 +18,12 @@ interface ISliderProps extends IStepValues {
   value?: number;
 }
 
-export interface IOffsets {
-  index: number;
-  // offsetX: Animated.Value<number>,
-  offsetMin: Animated.Value<number>;
-  offsetMax: Animated.Value<number>;
-}
-
 const Slider = ({ min, max, step, onValueChange, value }: ISliderProps) => {
   const [sliderSize, setSliderSize] = useState(0);
-  const [segments, setSegments] = useState<IOffsets[]>([]);
-  const [nativeSize, position, activeValue] = useValues([0, 0, 0], []);
+  const [nativeSize, position, activeValue, minValue, maxValue] = useValues(
+    [0, 0, 0, min, max],
+    [],
+  );
 
   // if(value) {
   //   if (value <= max && value >= min) {
@@ -38,41 +33,26 @@ const Slider = ({ min, max, step, onValueChange, value }: ISliderProps) => {
 
   const count = (max - min + step) / step;
   const offset = sliderSize / count;
-  console.log(segments.length, count);
-  // console.log()
 
-  useEffect(() => {
-    if (sliderSize !== 0) {
-      const offsets = createOffsets({ max, min, step, sliderSize });
-      if (value) {
-        // const valueIndex = (value - step) / step;
-        // const offset = offsets.find(({ index }) => index === valueIndex);
-        // console.log(offset)
-      }
-
-      setSegments(offsets);
-    }
-  }, [sliderSize]);
+  const handleOnValueChange = ([val]: any) => {
+    onValueChange(val);
+  };
 
   useCode(
     () =>
       cond(neq(nativeSize, 0), [
-        // call([position], (position) => console.log(position))
-
-        block(
-          segments.map(({ offsetMin, offsetMax, index }) =>
-            cond(
-              and(
-                greaterOrEq(position, offsetMin),
-                lessThan(position, offsetMax),
-                neq(activeValue, index),
-              ),
-              [call([], () => onValueChange(index * step)), set(activeValue, index)],
-            ),
+        set(
+          activeValue,
+          floor(
+            interpolate(position, {
+              inputRange: [0, nativeSize],
+              outputRange: [minValue, maxValue],
+            }),
           ),
         ),
+        call([activeValue], handleOnValueChange),
       ]),
-    [segments],
+    [nativeSize],
   );
 
   const handleOnLayout = ({ nativeEvent }: any) => {
@@ -114,29 +94,3 @@ const styles = StyleSheet.create({
     backgroundColor: '#d6d6d6',
   },
 });
-
-type CreateOffsets = (args: IStepValues & { sliderSize: number }) => IOffsets[];
-
-const createOffsets: CreateOffsets = ({ max, min, step, sliderSize }) => {
-  const segments = [];
-
-  if (sliderSize !== 0) {
-    const count = (max - min) / step;
-    const width = sliderSize / count;
-    let startOffset = 0;
-
-    for (let i = 0; i <= count; i++) {
-      const isEdge = i === 0 || i === count;
-      const stepOffset = isEdge ? width / 2 : width;
-      const endOffset = startOffset + stepOffset;
-      segments.push({
-        index: i,
-        offsetMin: new Value(Math.round(startOffset)),
-        offsetMax: new Value(Math.round(endOffset)),
-      });
-      startOffset += stepOffset;
-    }
-  }
-
-  return segments;
-};
