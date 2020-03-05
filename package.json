@@ -47,7 +47,8 @@
     "react-native-reanimated": "^1.7.0",
     "react-native-redash": "^9.6.0",
     "styled-components": "^5.0.0",
-    "validate.js": "^0.13.1"
+    "use-memo-one": "^1.1.1",
+    "validate.js": "https://github.com/vdh/validate.js.git"
   },
   "devDependencies": {
     "@babel/core": "^7.6.2",

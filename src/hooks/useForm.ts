@@ -1,121 +1,74 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import validate from 'validate.js';
 import forEach from 'lodash/forEach';
 
-type OnChangeFunc = (name: string, text: string) => void;
-type OnSubmitFunc = (callback: (forms: IForms) => void) => void;
-type FormHook = (config: IProps) => IHookData;
-type ValidateFormsFunc = (form: IForms) => IErrors;
-type ClearErrorFunc = (field: string) => void;
-
-interface IHookData {
-  values: IForms;
-  errors: IErrors;
-  onChange: OnChangeFunc;
-  onSubmit: OnSubmitFunc;
+interface FormData<Values, ErrorProps> {
+  values: Values;
+  errors: ErrorProps;
+  onChange: (key: keyof Values, text: string) => void;
+  onSubmit: (action: Action<Values>) => void;
 }
 
-interface IProps {
+type Errors<Values> = { [K in keyof Values]?: string } | undefined;
+
+type Action<Values> = (values: Values) => void;
+
+interface Config {
   constraints?: any;
+  initialValues?: any;
   validateOnChange?: boolean;
   validateBeforeChange?: boolean;
-  validation?: () => void | null;
 }
 
-interface IValidateResult {
-  [field: string]: string[];
-}
+export const useForm = <Values>(config: Config): FormData<Values, Errors<Values>> => {
+  const [values, setValues] = useState<Values>(config.initialValues || {});
+  const [errors, setErrors] = useState<Errors<Values>>();
 
-export interface IForms {
-  [field: string]: string;
-}
+  useEffect(() => {
+    if (config.initialValues) {
+      setValues(config.initialValues);
+    }
+  }, []);
 
-export interface IErrors {
-  [field: string]: string;
-}
+  const validateForms = () => {
+    const err: Errors<Values> = {};
 
-export const useForm: FormHook = config => {
-  const [values, setValues] = useState<IForms>({});
-  const [errors, setErrors] = useState<IErrors>({});
-
-  // initiate main validator
-  const _validator = config.validation || validate;
-
-  //
-  const validateForms: ValidateFormsFunc = formValues => {
-    const err: IErrors = {};
-    const forms = formValues;
-    // (config.validateOnChange || config.validateBeforeChange) && name ? { [name]: text } : values;
-
-    // TODO find solution how to validate rePassword match when validation is on change
-
-    // if (name === 'rePassword' && config.validateOnChange) {
-    //   forms = { ...forms, password: values.password };
-    // }
-
-    const result: IValidateResult = _validator(forms, config.constraints);
-    forEach(result, (value: string[], field: string) => {
-      err[field] = value[0];
+    const result = validate<Partial<Values>>(values, config.constraints);
+    forEach(result, (value, field) => {
+      if (value) {
+        err[field] = value[0];
+      }
     });
-
-    // if (name === 'rePassword' && config.validateOnChange) {
-    //   const { password, ...rest } = err;
-    //   err = rest;
-    // }
-
-    // if (config.validateOnChange) {
-    //   const { [name]: omit, ...restErrors } = errors;
-    //   const mErrors = err.hasOwnProperty(name) ? { ...errors, [name]: err[name] } : restErrors;
-    //   err = mErrors;
-    // }
-
-    // if (name.length === 0) {
-    //   setErrors(err);
-    // }
 
     return err;
   };
 
-  const _clearError: ClearErrorFunc = field => {
-    const { [field]: omit, ...restErrors } = errors;
-    setErrors(restErrors);
-  };
-
-  const validateOnChange = ({ name, text }: any) => {
-    const err = validateForms({ [name]: text });
-    setErrors(err);
-    setValues({ ...values, [name]: text });
-    // else if (values[name]) {
-    //   console.log(values[name]);
-    //   _clearError(name);
-    // }
-
-    // if (config.validateBeforeChange) {
-    //   const err = validateForms(name, text);
-    //   if (Object.keys(err).length === 0) {
-    //     setValues({ ...values, [name]: text });
-    //   }
-    // }
-  };
-
-  const onChange: OnChangeFunc = (name, text) => {
-    if (config.constraints && (config.validateOnChange || config.validateBeforeChange)) {
-      validateOnChange({ name, text });
-    } else {
-      setValues({ ...values, [name]: text });
+  const clearError = (field: keyof Values) => {
+    if (errors && errors[field]) {
+      delete errors[field];
+      setErrors(errors);
     }
   };
 
-  const onSubmit: OnSubmitFunc = callback => {
+  const onChange = (key: keyof Values, text: string) => {
+    clearError(key);
+    const newValues: Values = { ...values, [key]: text };
+    if (text.length === 0) {
+      delete newValues[key];
+    }
+    setValues(newValues);
+  };
+
+  const onSubmit = (action: Action<Values>) => {
     if (config.constraints) {
-      const err = validateForms(values);
+      const err = validateForms();
       if (Object.keys(err).length === 0) {
-        callback(values);
+        action(values);
       } else {
         setErrors(err);
       }
     } else {
-      callback(values);
+      action(values);
     }
   };
 

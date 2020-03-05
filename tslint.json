@@ -28,7 +28,7 @@
     "arrow-parens": false,
     "ordered-imports": false,
     "indent": [true, "spaces", 2],
-    "interface-name": [true, "always-prefix"],
+    "interface-name": [false, "always-prefix"],
     "no-empty-interface": false,
     "jsdoc-format": true,
     "jsx-no-lambda": false,

@@ -7517,10 +7517,9 @@ validate-npm-package-license@^3.0.1:
     spdx-correct "^3.0.0"
     spdx-expression-parse "^3.0.0"
 
-validate.js@^0.13.1:
+"validate.js@https://github.com/vdh/validate.js.git":
   version "0.13.1"
-  resolved "https://registry.yarnpkg.com/validate.js/-/validate.js-0.13.1.tgz#b58bfac04a0f600a340f62e5227e70d95971e92a"
-  integrity sha512-PnFM3xiZ+kYmLyTiMgTYmU7ZHkjBZz2/+F0DaALc/uUtVzdCt1wAosvYJ5hFQi/hz8O4zb52FQhHZRC+uVkJ+g==
+  resolved "https://github.com/vdh/validate.js.git#c64df5dad1a1908a6bdb36ca3d01063cf6b8d3bc"
 
 vary@~1.1.2:
   version "1.1.2"

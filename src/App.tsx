@@ -1,45 +1,70 @@
-import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
-import 'react-native-gesture-handler';
-import Slider from './components/Slider/Slider';
-import Acc from './components/Collaps/Acc';
+import React, { useCallback } from 'react';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { useForm } from './hooks';
+import { config } from './config';
+import { Input } from './components/Input/Input';
+import { FormKeyboardProvider } from './contexts/FormKeyboardContext';
+import Form, { RenderData } from './components/Form/Form';
+import KeyboardManager from './components/Form/KeyboardManager';
 
-interface IItems {
-  id: number;
+enum ETypes {
+  EMAIL = 'email',
+  PASSWORD = 'password',
 }
 
-const initData: IItems[] = [
-  { id: 0 },
-  // { id: 1 },
-];
+const data: IData[] = [{ key: ETypes.EMAIL, icon: 5 }, { key: ETypes.PASSWORD, icon: 6 }];
+
+interface IData {
+  icon: number;
+  key: keyof Values;
+}
+
+type Values = { [K in ETypes]: string };
 
 const App = () => {
-  const renderHeader = (item: IItems) => {
+  const { values, onChange, onSubmit, errors } = useForm<Values>(config);
+  const formSelector = useCallback((forms: Values) => console.log(forms), []);
+  const handleSubmit = useCallback(() => onSubmit(formSelector), [values]);
+
+  const renderItem: RenderData<IData> = ({ key, ...restProps }, index) => {
     return (
-      <View style={styles.header}>
-        <Text>asd</Text>
-      </View>
+      <Input
+        onChangeText={text => onChange(key, text)}
+        style={styles.input}
+        key={index}
+        value={values['name']}
+        {...restProps}
+      />
     );
   };
 
-  const renderContent = () => {
-    return <View style={{ width: '100%', height: 200 }} />;
-  };
-
   return (
-    <View style={{ flex: 1, marginTop: 50 }}>
-      <Acc renderHeader={renderHeader} renderContent={renderContent} data={initData} />
-      {/* <Slider min={1} max={10} step={1} value={3} onValueChange={index => console.log(index)} /> */}
+    <View style={{ flex: 1 }}>
+      <FormKeyboardProvider>
+        <KeyboardManager>
+          <Form<IData> renderItem={renderItem} data={data} />
+        </KeyboardManager>
+        <TouchableOpacity onPress={handleSubmit}>
+          <Text>Confirm</Text>
+        </TouchableOpacity>
+      </FormKeyboardProvider>
     </View>
   );
 };
 
+export default App;
+
 const styles = StyleSheet.create({
-  header: {
+  input: {
     width: '100%',
-    height: 30,
+    height: 40,
+    marginTop: 40,
     borderWidth: 1,
+    backgroundColor: 'lightgrey',
+  },
+  cont: {
+    justifyContent: 'space-between',
+    backgroundColor: 'white',
+    borderWidth: 5,
   },
 });
-
-export default App;
